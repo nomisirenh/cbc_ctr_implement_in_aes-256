@@ -12,8 +12,22 @@ def convert_block_of_128_bit(bit_plaintext):
     
     return blocks_inverse
 
-def encrypt_with_cbc(key, bit_plaintext):
-    pass
+def encrypt_with_cbc(bin_iv):
+    blocks = convert_block_of_128_bit(bit_plaintext)
+    cipher_text = []
+
+    xor = format(int(blocks[0], 2) ^ int(bin_iv, 2), '0128b')
+    c = cipher.encrypt(bytes(xor, 'utf-8'))
+    print(type(c))
+    cipher_text.append(format(int.from_bytes(c, "big"), '0128b'))
+
+    print(cipher_text)
+
+'''
+    for i in range(1, len(blocks)):
+        cipher_text.append(cipher.encrypt(str(int(blocks[i]) ^ int(blocks[i - 1]))))
+
+    return cipher_text '''
 
 def decrypt_with_cbc(key, cipher_text):
     pass
@@ -24,15 +38,18 @@ def encrypt_with_ctr(key, plaintext):
 def decrypt_with_ctr(key, ciphertext):
     pass
 
-key = get_random_bytes(32)
-cipher = AES.new(key, AES.MODE_ECB)
-plaintext = "Very cool and very long plaintext to be encrypted, wow such a cool plaintext"
+if __name__ == '__main__':
 
-bit_plaintext = ''.join(format(ord(c), 'b') for c in plaintext)
-print(bit_plaintext)
-print("----------------------")
+    key = get_random_bytes(32)
+    cipher = AES.new(key, AES.MODE_ECB)
+    
 
-b = convert_block_of_128_bit(bit_plaintext[::-1])
+    plaintext = "Very cool and very long plaintext to be encrypted, wow such a cool plaintext"
+    bit_plaintext = ''.join(format(ord(c), 'b') for c in plaintext)
 
-for i in range(len(b)):
-    print(b[i])
+    block_size = 128
+    iv = get_random_bytes(int(block_size/8))
+    bin_iv = format(int.from_bytes(iv, 'big'), '0128b')
+
+    encrypt_with_cbc(bin_iv)
+    
