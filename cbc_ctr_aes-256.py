@@ -12,13 +12,15 @@ def convert_block_of_128_bit(bit_plaintext):
     
     return blocks_inverse
 
-def encrypt_with_cbc(bin_iv):
+def encrypt_with_cbc():
     blocks = convert_block_of_128_bit(bit_plaintext)
     cipher_text = []
 
     xor = format(int(blocks[0], 2) ^ int(bin_iv, 2), '0128b')
-    c = cipher.encrypt(bytes(xor, 'utf-8'))
-    print(type(c))
+    xor_encode = xor.encode('UTF-8')
+    
+
+    c = cipher.encrypt(xor.encode('utf-8'))
     cipher_text.append(format(int.from_bytes(c, "big"), '0128b'))
 
     print(cipher_text)
@@ -51,5 +53,5 @@ if __name__ == '__main__':
     iv = get_random_bytes(int(block_size/8))
     bin_iv = format(int.from_bytes(iv, 'big'), '0128b')
 
-    encrypt_with_cbc(bin_iv)
+    encrypt_with_cbc()
     
