@@ -1,6 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
-from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.Padding import pad
 
 #convert the bit plaintext into block of 128, the function take in argument the bitstream reversed.
 #so i can add padding to the begining more easily
@@ -14,16 +14,17 @@ def convert_block_of_128_bit(bit_plaintext):
     return blocks_inverse
 
 def encrypt_with_cbc(bin_iv, cipher, bit_plaintext):
-    blocks = convert_block_of_128_bit(bit_plaintext)
+    blocks = convert_block_of_128_bit(bit_plaintext[::-1])
     cipher_text = []
 
     
     xor = int(blocks[0], 2) ^ int(bin_iv, 2)
+    #print(format(xor, '0128b'))
     c = cipher.encrypt(xor.to_bytes(16, 'big'))
     cipher_text.append(c)
 
     for i in range(1, len(blocks)):
-        xor = int(blocks[i], 2) ^ int(blocks[i -1], 2)
+        xor = int(blocks[i], 2) ^ int.from_bytes(cipher_text[i-1], 'big')
         c = cipher.encrypt(xor.to_bytes(16, 'big'))
         cipher_text.append(c)
 
@@ -43,7 +44,6 @@ def main():
     key = b'\xc9s\x89@\t\x0f\xdd\x9b\x88\xbd\x9b\xa8\xd9\x99\x8a\x87(\xf1e]5\xdbj\xe6\n\xf1!e\x9f\x06\xb8\xe5'
 
     #print(key)
-    print("")
     cipher = AES.new(key, AES.MODE_ECB)
     
 
