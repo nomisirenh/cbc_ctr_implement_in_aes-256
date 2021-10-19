@@ -1,5 +1,6 @@
 from Crypto.Cipher import AES
 from Crypto.Random import get_random_bytes
+from Crypto.Util.Padding import pad, unpad
 
 #convert the bit plaintext into block of 128, the function take in argument the bitstream reversed.
 #so i can add padding to the begining more easily
@@ -17,13 +18,13 @@ def encrypt_with_cbc(bin_iv, cipher, bit_plaintext):
     cipher_text = []
 
     
-    xor = int(blocks[0], 2) ^ int(bin_iv, 2) 
+    xor = int(blocks[0], 2) ^ int(bin_iv, 2)
     c = cipher.encrypt(xor.to_bytes(16, 'big'))
     cipher_text.append(c)
 
     for i in range(1, len(blocks)):
         xor = int(blocks[i], 2) ^ int(blocks[i -1], 2)
-        c = cipher.encrypt(int(xor).to_bytes(16, 'big'))
+        c = cipher.encrypt(xor.to_bytes(16, 'big'))
         cipher_text.append(c)
 
     return cipher_text 
@@ -38,7 +39,11 @@ def decrypt_with_ctr(key, ciphertext):
     pass
 
 def main():
-    key = get_random_bytes(32)
+    #key = get_random_bytes(32)
+    key = b'\xc9s\x89@\t\x0f\xdd\x9b\x88\xbd\x9b\xa8\xd9\x99\x8a\x87(\xf1e]5\xdbj\xe6\n\xf1!e\x9f\x06\xb8\xe5'
+
+    #print(key)
+    print("")
     cipher = AES.new(key, AES.MODE_ECB)
     
 
@@ -46,13 +51,20 @@ def main():
     bit_plaintext = ''.join(format(ord(c), 'b') for c in plaintext)
 
     block_size = 128
-    iv = get_random_bytes(int(block_size/8))
+    #iv = get_random_bytes(int(block_size/8))
+    iv = b'>Z\x861\x18\x9ek#\xe9\xda:y\x0cu,\x1b'
+ 
     bin_iv = format(int.from_bytes(iv, 'big'), '0128b')
+
+    cipher2 = AES.new(key, AES.MODE_CBC, iv)
+    test = cipher2.encrypt(pad("Very cool and very long plaintext to be encrypted, wow such a cool plaintext".encode("utf-8"), 16))
+    print(format(int.from_bytes(test, 'big'), 'b'))
+    print("")
 
     c_text = encrypt_with_cbc(bin_iv, cipher, bit_plaintext)
 
     for text in c_text:
-        print(text)
+        print(format(int.from_bytes(text, 'big'), '0128b'))
 
 
 main()
