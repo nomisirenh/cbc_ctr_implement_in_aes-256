@@ -12,22 +12,21 @@ def convert_block_of_128_bit(bit_plaintext):
     
     return blocks_inverse
 
-def encrypt_with_cbc(bin_iv):
+def encrypt_with_cbc(bin_iv, cipher, bit_plaintext):
     blocks = convert_block_of_128_bit(bit_plaintext)
     cipher_text = []
 
-    xor = format(int(blocks[0], 2) ^ int(bin_iv, 2), '0128b')
-    c = cipher.encrypt(bytes(xor, 'utf-8'))
-    print(type(c))
-    cipher_text.append(format(int.from_bytes(c, "big"), '0128b'))
+    
+    xor = int(blocks[0], 2) ^ int(bin_iv, 2) 
+    c = cipher.encrypt(xor.to_bytes(16, 'big'))
+    cipher_text.append(c)
 
-    print(cipher_text)
-
-'''
     for i in range(1, len(blocks)):
-        cipher_text.append(cipher.encrypt(str(int(blocks[i]) ^ int(blocks[i - 1]))))
+        xor = int(blocks[i], 2) ^ int(blocks[i -1], 2)
+        c = cipher.encrypt(int(xor).to_bytes(16, 'big'))
+        cipher_text.append(c)
 
-    return cipher_text '''
+    return cipher_text 
 
 def decrypt_with_cbc(key, cipher_text):
     pass
@@ -38,8 +37,7 @@ def encrypt_with_ctr(key, plaintext):
 def decrypt_with_ctr(key, ciphertext):
     pass
 
-if __name__ == '__main__':
-
+def main():
     key = get_random_bytes(32)
     cipher = AES.new(key, AES.MODE_ECB)
     
@@ -51,5 +49,12 @@ if __name__ == '__main__':
     iv = get_random_bytes(int(block_size/8))
     bin_iv = format(int.from_bytes(iv, 'big'), '0128b')
 
-    encrypt_with_cbc(bin_iv)
+    c_text = encrypt_with_cbc(bin_iv, cipher, bit_plaintext)
+
+    for text in c_text:
+        print(text)
+
+
+main()
+    
     
