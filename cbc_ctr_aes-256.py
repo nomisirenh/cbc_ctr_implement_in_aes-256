@@ -12,24 +12,28 @@ def convert_block_of_128_bit(bit_plaintext):
     
     return blocks_inverse
 
+def byte_xor(byte1, byte2):
+    return bytes([ a ^  b for  a,  b in zip(byte1, byte2)])
+
 def encrypt_with_cbc():
     blocks = convert_block_of_128_bit(bit_plaintext)
     cipher_text = []
 
-    xor = format(int(blocks[0], 2) ^ int(bin_iv, 2), '0128b')
-    xor_encode = xor.encode('UTF-8')
-    
+    for i in range(len(blocks)):
+        if i == 0:
+            xor = byte_xor(blocks[0].encode('UTF-8'), iv)
+            c = cipher.encrypt(xor)
+            print(len(c))
+            cipher_text.append(c)
 
-    c = cipher.encrypt(xor.encode('utf-8'))
-    cipher_text.append(format(int.from_bytes(c, "big"), '0128b'))
+        else:
+            xor = byte_xor(blocks[i].encode('UTF-8'), bytes(blocks[i - 1], 'UTF-8'))
+            print(xor)
+            c = cipher.encrypt(xor)
+            print(len(c))
+            cipher_text.append(c)
 
-    print(cipher_text)
-
-'''
-    for i in range(1, len(blocks)):
-        cipher_text.append(cipher.encrypt(str(int(blocks[i]) ^ int(blocks[i - 1]))))
-
-    return cipher_text '''
+    return cipher_text
 
 def decrypt_with_cbc(key, cipher_text):
     pass
@@ -51,7 +55,11 @@ if __name__ == '__main__':
 
     block_size = 128
     iv = get_random_bytes(int(block_size/8))
-    bin_iv = format(int.from_bytes(iv, 'big'), '0128b')
 
-    encrypt_with_cbc()
-    
+    c_text = encrypt_with_cbc()
+
+    '''
+    for c in c_text:
+        print(c)
+        print("")
+    '''
