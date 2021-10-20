@@ -38,8 +38,18 @@ def decrypt_with_cbc(cipher_text, cipher, iv):
 
     return decrypt_text  
 
-def encrypt_with_ctr(key, plaintext):
-    pass
+def encrypt_with_ctr(plaintext, cipher, iv):
+    blocks = convert_block_of_128_bit(plaintext)
+    cipher_text = []
+
+    c_iv = iv
+    for i in range(len(blocks)):
+        c = cipher.encrypt(c_iv)
+        xor = byte_xor(blocks[i], c)
+        cipher_text.append(xor)
+        c_iv += i.to_bytes(16,'big')
+    
+    return cipher_text
 
 def decrypt_with_ctr(key, ciphertext):
     pass
@@ -58,20 +68,17 @@ def main():
     iv = b'>Z\x861\x18\x9ek#\xe9\xda:y\x0cu,\x1b'
 
     cipher2 = AES.new(key, AES.MODE_CBC, iv)
+    #cipher3 = AES.new(key, AES.MODE_CTR, iv)
     test = cipher2.encrypt(plaintext)
-    #print(test)
+    print(test)
     print(" ")
 
     c_text = encrypt_with_cbc(plaintext, cipher, iv)
     d_text = decrypt_with_cbc(c_text, cipher, iv)
-    
 
+    c_text = encrypt_with_ctr(plaintext, cipher, iv)
+    print(" ")
     for c in c_text:
         print(c)
-    
-    print(" ")
-
-    for d in d_text:
-        print(d)
 
 main()
