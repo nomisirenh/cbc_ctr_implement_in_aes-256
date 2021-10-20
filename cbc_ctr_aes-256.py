@@ -16,21 +16,27 @@ def encrypt_with_cbc(plaintext, cipher, iv):
     blocks = convert_block_of_128_bit(plaintext)
     cipher_text = []
 
+    c = iv
     for i in range(len(blocks)):
-        if i == 0:
-            xor = byte_xor(blocks[0], iv)
-            c = cipher.encrypt(xor)
-            cipher_text.append(c)
-
-        else:
-            xor = byte_xor(blocks[i], cipher_text[i - 1])
-            c = cipher.encrypt(xor)
-            cipher_text.append(c)
+        xor = byte_xor(blocks[i], c)
+        c = cipher.encrypt(xor)
+        cipher_text.append(c)
 
     return cipher_text
 
-def decrypt_with_cbc(key, cipher_text):
-    pass
+def decrypt_with_cbc(cipher_text, cipher, iv):
+    #blocks = convert_block_of_128_bit(cipher_text)
+    blocks = cipher_text
+    decrypt_text = []
+
+    b = iv
+    for i in range(len(blocks)):
+        d = cipher.decrypt(blocks[i])
+        xor = byte_xor(d, b)
+        b = blocks[i]
+        decrypt_text.append(xor)
+
+    return decrypt_text  
 
 def encrypt_with_ctr(key, plaintext):
     pass
@@ -53,13 +59,19 @@ def main():
 
     cipher2 = AES.new(key, AES.MODE_CBC, iv)
     test = cipher2.encrypt(plaintext)
-    print(test)
+    #print(test)
     print(" ")
 
-    c_text = encrypt_with_cbc(plaintext, cipher, iv)   
+    c_text = encrypt_with_cbc(plaintext, cipher, iv)
+    d_text = decrypt_with_cbc(c_text, cipher, iv)
+    
+
     for c in c_text:
         print(c)
-        
     
+    print(" ")
+
+    for d in d_text:
+        print(d)
 
 main()
